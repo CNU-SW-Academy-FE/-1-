@@ -3,13 +3,20 @@ class Calculator{
     elCurrentPreview;
     previousOperand;
     currentOperand;
+    currentNumber;
+    previousNumber;
+    result;
+    historyStack;
     constructor(elPreviousPreview,elCurrentPreview) {
         this.elCurrentPreview = elCurrentPreview;
         this.elPreviousPreview = elPreviousPreview;
+        this.currentNumber = ''
+        this.previousNumber = 0
+        this.result = 0;
+        this.historyStack = []
     }
 
     onPressNumber(number){
-        this.elPreviousPreview.textContent = this.elCurrentPreview.textContent
         if(number === '.') {
             if(this.elCurrentPreview.textContent.length < 1 || 
                 this.elCurrentPreview.textContent.includes('.')
@@ -17,36 +24,81 @@ class Calculator{
                     return;
                 } 
         }
-        this.elCurrentPreview.textContent += number
+        this.currentNumber += number
+        this.elCurrentPreview.textContent = this.currentNumber
     }
 
     handleMinus(){
-
+        this.result = this.previousNumber - (+this.currentNumber)
+        this.elCurrentPreview.textContent = this.result
+        this.historyStack.push(this.result)
     }
     handlePlus(){
-
+        this.result = this.previousNumber + (+this.currentNumber)
+        this.elCurrentPreview.textContent = this.result
+        this.historyStack.push(this.result)
     }
     handleMultiply(){
+        this.result = this.previousNumber * (+this.currentNumber)
+        this.elCurrentPreview.textContent = this.result
+        this.historyStack.push(this.result)
 
     }
     handleDivide(){
+        this.result = this.previousNumber / (+this.currentNumber)
+        this.elCurrentPreview.textContent = this.result
+        this.historyStack.push(this.result)
 
     }
     onEqual(){
+        if(this.historyStack.length >= 1){
+            this.previousNumber = this.result
+            this.elCurrentPreview.textContent = this.result
+            this.elPreviousPreview.textContent = this.previousNumber +" "+ this.currentOperand +" "+ this.currentNumber
+
+        }
+        else{
+            this.elPreviousPreview.textContent = this.previousNumber +" "+ this.currentOperand +" "+ this.currentNumber
+        }
+        switch(this.currentOperand){
+            case "-":
+                this.handleMinus()
+                break;
+            case '+':
+                this.handlePlus()
+                break;
+            case '*':
+                this.handleMultiply()
+                break;
+            case '÷':
+                this.handleDivide()
+                break;
+        }
 
     }
     onDelete(){
-
+        this.currentNumber = this.currentNumber.slice(0,this.currentNumber.length-1)
+        this.elCurrentPreview.textContent = this.currentNumber
     }
     onReset(){
         this.elPreviousPreview.textContent = '';
         this.elCurrentPreview.textContent = '';
-        this.previousOperand.textContent = '';
-        this.currentOperand.textContent = '';
+        this.previousOperand = '';
+        this.currentOperand = '';
+        this.currentNumber = '';
+        this.previousNumber = 0;
+        this.result = 0;
+        this.historyStack.splice(0);
+        
     }
     appendOperation(oper){
-        this.previousOperand = oper
+        this.elPreviousPreview.textContent = ''
+        this.currentOperand = oper
         this.elCurrentPreview.textContent += oper
+        this.elPreviousPreview.textContent += this.elCurrentPreview.textContent;
+        this.elCurrentPreview.textContent = '';
+        this.previousNumber = +this.currentNumber;
+        this.currentNumber = '';
     }
 }
 
@@ -77,6 +129,9 @@ elNumber.forEach((number) => {
         //console.log(number)
     })
 })
+elDelete.addEventListener('click', (e) => {
+    cal.onDelete()
+})
 
 elOperaters.forEach((operater) =>{
     operater.addEventListener('click', (e) => {
@@ -94,7 +149,8 @@ elOperaters.forEach((operater) =>{
                 cal.appendOperation(e.target.textContent)
                 break;
             case elEqual:
-                cal.appendOperation(e.target.textContent)
+                
+                cal.onEqual()
                 break;
             default:
                 break;
@@ -103,4 +159,4 @@ elOperaters.forEach((operater) =>{
     })
 })
 
-elReset.addEventListener('click', () => cal.onReset())
+elReset.addEventListener('click', () => {cal.onReset()})
