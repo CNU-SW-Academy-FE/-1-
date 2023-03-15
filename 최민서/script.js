@@ -1,231 +1,183 @@
-// DOM element
-const $calPreviousPreview = document.querySelector('.cal-previous-preview');
-const $calCurrentPreview = document.querySelector('.cal-current-preview');
-const $allClear = document.querySelector('.all-clear');
-const $clear = document.querySelector('.clear');
-const $parentheses = document.querySelectorAll('.parenthesis');
-const $numbers = document.querySelectorAll('.number');
-const $operations = document.querySelectorAll('.operation');
-const $equal = document.querySelector('.equal');
-const $history = document.querySelector('.history');
+class Calculator {
+    previousPreview;
+    currentPreview;
+    history;
+    num1 = "";
+    num2 = "";
+    previousOperand = "";
+    currentOperand = "";
+    historyList = [];
 
-let previousNum = ""; // 피연산자 1
-let currentNum = ""; // 피연산자 2
-let lastOperation = ""; // 마지막 연산자
+    constructor(previousPreview, currentPreview, history) {
+        this.previousPreview = previousPreview;
+        this.currentPreview = currentPreview;
+        this.history = history;
+    }
 
-let priorityPreviousNum = ""; // 괄호 안 피연산자 1
-let priorityCurrentNum = ""; // 괄호 안 피연산자 2
-let priorityOperation = ""; // 괄호 안 연산자
-
-let mathExpression = ""; // 계산식
-let result = null; // 계산값
-let tempResult = null; // 임시 저장
-let haveDot = false; // . 중복 체크
-let haveParenthesis = false; // 괄호 체크
-const historyList = []; // 히스토리 [{ 계산식: ___ , 계산값: ___ }, ...]
-
-// 괄호 클릭
-$parentheses.forEach(parenthesis => {
-    parenthesis.addEventListener('click', e => {
-        // 1. '(' 클릭 시
-        if (e.target.innerText === '(') {
-            haveParenthesis = true;
-            mathExpression += ' (';
-            $calPreviousPreview.innerText = mathExpression;
-            if (currentNum) {
-                previousNum = currentNum;
-            }
-        }
-        // 2. ')' 클릭 시
-        else {
-            // '('가 없는 경우, alert()
-            if (!haveParenthesis) {
-                alert('잘못된 입력입니다.');
+    onPressNumber(number) {
+        if (!this.num1) this.previousPreview.textContent = "";
+        // 점('.')을 중복하여 눌렀을 때
+        if (number === '.') {
+            if (this.currentPreview.textContent.length < 1 || this.currentPreview.textContent.includes('.')) {
                 return;
             }
-            haveParenthesis = false;
-            mathExpression += ` ${priorityCurrentNum} )`;
-            $calPreviousPreview.innerText = mathExpression;
-            priorityCalculate();
-            if (!previousNum) {
-                previousNum = result;
-            } else {
-                currentNum = result;
-            }
-            calculate();
-            priorityPreviousNum = "";
-            priorityCurrentNum = "";
         }
-    })
-})
+        this.num2 += number;
+        this.currentPreview.textContent = this.num2;
+    }
+
+    handleMinus() {
+        this.num1 = String(parseFloat(this.num1) - parseFloat(this.num2));
+    }
+
+    handlePlus() {
+        this.num1 = String(parseFloat(this.num1) + parseFloat(this.num2));
+    }
+
+    handleMultiply() {
+        this.num1 = String(parseFloat(this.num1) * parseFloat(this.num2));
+    }
+
+    handleDivide() {
+        this.num1 = String(parseFloat(this.num1) / parseFloat(this.num2));
+    }
+
+    onEqual() {
+        this.currentPreview.textContent = this.num1;
+        // history 영역에 추가
+        this.historyList.push({ expression: `${this.previousPreview.textContent}`, result: `${this.currentPreview.textContent}` });
+        this.history.innerHTML = `
+            ${this.historyList.map(hist => `
+                <div style="border-top: 2px solid gray;">
+                    <p style="opacity: .7;">${hist.expression}</p>
+                    <p style="font-weight: bold; font-size: 16px;">${hist.result}</p>
+                </div>
+            `).join('')}
+        `;
+        // 필요한 변수 초기화
+        this.num1 = "";
+        this.num2 = "";
+        this.previousOperand = "";
+        this.currentOperand = "";
+    }
+
+    onDelete() {
+        // 1. 입력한 숫자의 길이가 1일 때
+        if (this.currentPreview.textContent.length === 1) {
+            this.currentPreview.textContent = ""
+        }
+        // 2. 입력한 숫자의 길이가 1보다 클 때
+        else {
+            this.currentPreview.textContent = this.currentPreview.textContent.slice(0, -1);
+        }
+    }
+
+    onReset() {
+        this.previousPreview.textContent = "";
+        this.currentPreview.textContent = "";
+        this.num1 = "";
+        this.num2 = "";
+        this.previousOperand = "";
+        this.currentOperand = "";
+    }
+
+    appendOperation(operator) {
+        // 숫자가 입력되기 전에 연산자 입력 시, alert
+        if (!this.currentPreview.textContent) {
+            alert("숫자부터 입력해주세요.");
+            this.onReset();
+            return;
+        }
+        // 이전 식의 결괏값을 이용하여 계산하려는 경우
+        else {
+            if (!this.num1 && !this.num2 && !this.previousOperand && !this.currentOperand) {
+                this.previousPreview.textContent = "";
+                this.num1 = this.currentPreview.textContent;
+            }
+        }
+
+        this.previousOperand = this.currentOperand;
+        this.currentOperand = operator;
+
+        // 피연산자 설정
+        if (!this.num1) {
+            this.num1 = this.num2;
+            this.num2 = "";
+        }
+
+        // 두 개의 피연산자와 하나의 연산자가 모두 존재할 경우, 연산자 종류에 따라 계산
+        if (this.previousOperand && this.num1 && this.num2) {
+            switch (this.previousOperand) {
+                case '÷':
+                    this.handleDivide();
+                    break;
+                case '*':
+                    this.handleMultiply();
+                    break;
+                case '-':
+                    this.handleMinus();
+                    break;
+                case '+':
+                    this.handlePlus();
+                    break;
+                default:
+                    break;
+            }
+            this.num2 = "";
+        }
+
+        this.previousPreview.textContent += (this.currentPreview.textContent + " " + this.currentOperand + " ");
+        
+        if (this.currentOperand === '=') this.onEqual(); // 현재 연산자가 '='인 경우, onEqual() 호출
+        else this.currentPreview.textContent = "";
+    }
+
+}
+
+// display DOM element
+const $previousPreview = document.querySelector("[data-previous-preview]");
+const $currentPreview = document.querySelector("[data-current-preview]");
+
+// reset & delete DOM element
+const $btnReset = document.querySelector("[data-btn-reset]");
+const $btnDelete = document.querySelector("[data-btn-delete]");
+
+// operation DOM element
+const $btnOperations = document.querySelectorAll("[data-btn-operation]");
+
+// number DOM element
+const $btnNumbers = document.querySelectorAll("[data-btn-number]");
+
+// equal DOM element
+const $btnEqual = document.querySelector("[data-btn-equal]");
+
+// history DOM element
+const $history = document.querySelector(".history");
+
+// Calculator 객체 생성
+const calculator = new Calculator($previousPreview, $currentPreview, $history);
 
 // 숫자 클릭
-$numbers.forEach(number => {
+$btnNumbers.forEach((number) => {
     number.addEventListener('click', e => {
-        tempResult = null;
-        // . 중복 체크
-        if (e.target.innerText === '.' && !haveDot) {
-            haveDot = true;
-        } else if (e.target.innerText === '.' && haveDot) {
-            return;
-        }
-        // 1. 괄호 안에 있는 경우
-        if (haveParenthesis) {
-            priorityCurrentNum += e.target.innerText;
-            $calCurrentPreview.innerText = priorityCurrentNum;
-        }
-        // 2. 괄호 밖에 있는 경우
-        else {
-            currentNum += e.target.innerText;
-            $calCurrentPreview.innerText = currentNum;
-        }
-    })
-})
+        const num = e.target.textContent;
+        calculator.onPressNumber(num);
+    });
+});
 
-// 연산자 클릭
-$operations.forEach(operation => {
+// 연산자('+', '-', '*', '÷', '=') 클릭
+$btnOperations.forEach((operation) => {
     operation.addEventListener('click', e => {
-        // 1. '='를 눌러 계산된 값이 있는 상태로 연산자 클릭 시
-        if (tempResult) {
-            currentNum = String(tempResult);
-        }
-        // 2. 입력한 피연산자가 없는 경우, alert()
-        if (!currentNum && !priorityCurrentNum) {
-            alert('숫자부터 입력해주세요.');
-            return;
-        }
-        haveDot = false;
-        const operationSymbol = e.target.innerText;
-        // 1. 괄호 안에 있는 경우
-        if (haveParenthesis) {
-            // 1-1. 두 피연산자와 연산자가 있을 경우
-            if (priorityPreviousNum && priorityCurrentNum && priorityOperation) {
-                priorityCalculate(); // 계산
-                priorityPreviousNum = result; // 계산값을 첫 번째 피연산자에 저장
-            } else {
-                if (!priorityPreviousNum) priorityPreviousNum = priorityCurrentNum; // 두 번째 피연산자 값을 첫 번째 피연산자에 저장
-            }
-            priorityOperation = operationSymbol;
-        }
-        // 2. 괄호 밖에 있는 경우
-        else {
-            // 1-1. 두 피연산자와 연산자가 있을 경우
-            if (previousNum && currentNum && lastOperation) {
-                calculate();
-                previousNum = result;
-            } else {
-                if (!previousNum) previousNum = currentNum;
-            }
-            lastOperation = operationSymbol;
-        }
-        update(operationSymbol); // 업데이트
-    })
-})
-
-// 등호 클릭
-$equal.addEventListener('click', () => {
-    if (mathExpression.slice(-1) !== ')') {
-        calculate();
-        update("=");
-    }
-    $calCurrentPreview.innerText = result; // 결과 출력
-    historyList.push({ expression: `${mathExpression}`, result: `${result}` }); // 히스토리 추가
-    $history.innerHTML = `
-        ${historyList.map(history => `
-            <div style="border-top: 2px solid gray;">
-                <p style="opacity: .7; color: black;">${history.expression}</p>
-                <p style="font-weight: bold; font-size: 16px;">${history.result}</p>
-            </div>
-        `).join('')}
-    `;
-    // 변수 초기화
-    tempResult = result;
-    result = null;
-    haveDot = false;
-    currentNum = "";
-    previousNum = "";
-    lastOperation = "";
-    mathExpression = "";
-})
+        calculator.appendOperation(e.target.textContent);
+    });
+});
 
 // 초기화 클릭
-$allClear.addEventListener('click', () => {
-    $calPreviousPreview.innerText = "";
-    $calCurrentPreview.innerText = "";
-    previousNum = "";
-    currentNum = "";
-    mathExpression = "";
-    result = null;
-    tempResult = null;
-    haveDot = false;
-    lastOperation = "";
-})
+$btnReset.addEventListener('click', () => {
+    calculator.onReset();
+});
 
 // 지우기 클릭
-$clear.addEventListener('click', () => {
-    // 숫자가 한 자리인 경우
-    if (currentNum.length === 1) {
-        $calCurrentPreview.innerText = "";
-        currentNum = "";
-    }
-    // 숫자가 두 자리 이상인 경우, 슬라이싱
-    else {
-        const slicedCurrentNum = currentNum.slice(0, -1);
-        $calCurrentPreview.innerText = slicedCurrentNum;
-        currentNum = slicedCurrentNum;
-    }
+$btnDelete.addEventListener('click', () => {
+    calculator.onDelete();
 })
-
-// 입력한 식 업데이트
-const update = (symbol = '') => {
-    // 1. 괄호가 있는 경우
-    if (haveParenthesis) {
-        mathExpression += ` ${priorityCurrentNum} ${symbol}`;
-        priorityCurrentNum = "";
-    }
-    // 2. 괄호가 없는 경우
-    else {
-        mathExpression += ` ${currentNum} ${symbol}`;
-        currentNum = "";
-    }
-    $calPreviousPreview.innerText = mathExpression; // 화면에 이전 식 출력
-}
-
-// 계산
-const calculate = () => {
-    // 첫 번째 피연산자가 없을 경우
-    if (!previousNum) {
-        result = parseFloat(currentNum);
-    }
-    // 피연산자가 모두 있을 경우
-    else {
-        if (lastOperation === '*') {
-            result = parseFloat(previousNum) * parseFloat(currentNum);
-        } else if (lastOperation === '+') {
-            result = parseFloat(previousNum) + parseFloat(currentNum);
-        } else if (lastOperation === '-') {
-            result = parseFloat(previousNum) - parseFloat(currentNum);
-        } else if (lastOperation === '÷') {
-            result = parseFloat(previousNum) / parseFloat(currentNum);
-        }
-    }
-    lastOperation = "";
-}
-
-// 괄호 안 계산
-const priorityCalculate = () => {
-    if (!priorityPreviousNum) {
-        result = parseFloat(priorityCurrentNum);
-    } else {
-        if (priorityOperation === '*') {
-            result = parseFloat(priorityPreviousNum) * parseFloat(priorityCurrentNum);
-        } else if (priorityOperation === '+') {
-            result = parseFloat(priorityPreviousNum) + parseFloat(priorityCurrentNum);
-        } else if (priorityOperation === '-') {
-            result = parseFloat(priorityPreviousNum) - parseFloat(priorityCurrentNum);
-        } else if (priorityOperation === '÷') {
-            result = parseFloat(priorityPreviousNum) / parseFloat(priorityCurrentNum);
-        }
-    }
-    priorityOperation = "";
-}
