@@ -30,24 +30,50 @@ class Calculator {
       return;
     }
     this.$CurrentPreview.textContent += num;
-    
   }
 
   handleMinus(a, b) {
     this.$CurrentPreview.textContent = a - b;
     this.$PreviousPreview.textContent = "";
+    this.operation = "";
   }
 
-  handleMultiply(a, b) {}
+  handleMultiply(a, b) {
+    this.$CurrentPreview.textContent = a * b;
+    this.$PreviousPreview.textContent = "";
+    this.operation = "";
+  }
 
-  handleDivide(a, b) {}
+  handleDivide(a, b) {
+    this.$CurrentPreview.textContent = a / b;
+    this.$PreviousPreview.textContent = "";
+    this.operation = "";
+  }
 
-  handlePlus(a, b) {}
+  handlePlus(a, b) {
+    this.$CurrentPreview.textContent = a + b;
+    this.$PreviousPreview.textContent = "";
+    this.operation = "";
+  }
 
-  onEqual() {}
+  onEqual() {
+    if(!this.operation) {
+      this.operation = operation;
+      this.$PreviousPreview.textContent = this.$CurrentPreview.textContent + " " + operation;
+      this.$CurrentPreview.textContent = "";
+    } else if(this.operation === "-") {
+      this.handleMinus(this.previousPreview, this.currentPreview);
+    } else if(this.operation === "+") {
+      this.handlePlus(this.previousPreview, this.currentPreview);
+    } else if(this.operation === "*") {
+      this.handleMultiply(this.previousPreview, this.currentPreview);
+    } else if(this.operation === "÷") {
+      this.handleDivide(this.previousPreview, this.currentPreview);
+    }
+  }
 
   onDelete() {
-
+    this.$CurrentPreview.textContent = this.$CurrentPreview.textContent.slice(0, -1);
   }
 
   onReset() {
@@ -63,12 +89,20 @@ class Calculator {
     this.previousPreview = parseFloat(this.$PreviousPreview.textContent);
     this.currentPreview = parseFloat(this.$CurrentPreview.textContent);
 
-    if(!this.operation) {
+    if(!this.operation && operation !== "=") {
       this.operation = operation;
       this.$PreviousPreview.textContent = this.$CurrentPreview.textContent + " " + operation;
       this.$CurrentPreview.textContent = "";
     } else if(this.operation === "-") {
       this.handleMinus(this.previousPreview, this.currentPreview);
+    } else if(this.operation === "+") {
+      this.handlePlus(this.previousPreview, this.currentPreview);
+    } else if(this.operation === "*") {
+      this.handleMultiply(this.previousPreview, this.currentPreview);
+    } else if(this.operation === "÷") {
+      this.handleDivide(this.previousPreview, this.currentPreview);
+    } else if(this.operation === "=") {
+      this.onEqual();
     }
   }
 }
@@ -107,6 +141,10 @@ $BtnOperations.forEach(($BtnOperation) => {
   });
 });
 
-$BtnReset.addEventListener('click', (e) => {
+$BtnReset.addEventListener('click', () => {
   test.onReset();
+})
+
+$BtnDelete.addEventListener('click', () => {
+  test.onDelete();
 })
