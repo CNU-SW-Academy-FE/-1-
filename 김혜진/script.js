@@ -1,6 +1,10 @@
 class Calculator{
   elePreviousPreview;
   eleCurrentPreview;
+  previousOperand;
+  currentOperand;
+  operation;
+  flag = 0;
 
   constructor(elePreviousPreview, eleCurrentPreview){
     this.elePreviousPreview = elePreviousPreview;
@@ -8,7 +12,10 @@ class Calculator{
   }
 
   onPressNumber(number){
-    console.log(this.elePreviousPreview.textContent);
+    if(this.flag === 1){
+      this.eleCurrentPreview.textContent = '';
+      this.flag = 0;
+    }
 
     if ( number === '.'){
       if(this.eleCurrentPreview.textContent.length < 1 ||
@@ -17,37 +24,66 @@ class Calculator{
         return;
       }
     }
+    this.eleCurrentPreview.textContent += number;
   }
 
   handleMinus(){
-
+    this.eleCurrentPreview.textContent = this.previousOperand - this.currentOperand;
   }
 
   handlePlus(){
-
+    this.eleCurrentPreview.textContent = this.previousOperand + this.currentOperand;
   }
 
   handleMultiply(){
-
+    this.eleCurrentPreview.textContent = this.previousOperand * this.currentOperand;
   }
 
   handleDivide(){
-
+    this.eleCurrentPreview.textContent = this.previousOperand / this.currentOperand;
   }
   onEqual(){
-
+    this.currentOperand = Number(this.eleCurrentPreview.textContent);
+    switch(this.operation){
+      case '-':
+        this.handleMinus();
+        break;
+      case '+':
+        this.handlePlus();
+        break;
+      case '*':
+        this.handleMultiply();
+        break;
+      case '÷':
+        this.handleDivide();
+        break;
+      default:
+        break;
+    }
+    this.elePreviousPreview.textContent = '';
+    this.flag = 1;
   }
 
   onDelete(){
-
+    const str = this.eleCurrentPreview.textContent;
+    this.eleCurrentPreview.textContent = str.substring(0, str.length-1);
   }
 
   onReset(){
-
+    this.elePreviousPreview.textContent = '';
+    this.eleCurrentPreview.textContent = '';
+    this.previousOperand = '';
+    this.currentOperand='';
+    this.operation='';
   }
 
-  appendOperation(){
-
+  appendOperation(operation){
+    this.operation = operation;
+    this.previousOperand = Number(this.eleCurrentPreview.textContent);
+    this.eleCurrentPreview.textContent = '';
+    this.elePreviousPreview.textContent += this.previousOperand;
+    this.elePreviousPreview.textContent += operation;
+    this.flag = 1;
   }
 }
 
@@ -71,35 +107,39 @@ const calculator = new Calculator(elePreviousPreview, eleCurrentPreview);
 
 eleNumbers.forEach( eleNumber =>{
   eleNumber.addEventListener("click", (e)=>{
-    // const number = e.target.textContent;
-    // console.log(number);
-    calculator.onPressNumber();
+    calculator.onPressNumber(e.target.textContent);
   })
 })
 
 eleOperations.forEach( eleOperation =>{
   eleOperation.addEventListener("click", (e)=>{
-    // const operation = e.target.textContent;
-    // console.log(operation);
     switch(eleOperation){
       case eleMinus:
-        calculator.appendOperation();
+        calculator.appendOperation(e.target.textContent);
         break;
       case elePlus:
-        calculator.appendOperation();
+        calculator.appendOperation(e.target.textContent);
         break;
       case eleMultiply:
-        calculator.appendOperation();
+        calculator.appendOperation(e.target.textContent);
         break;
       case eleDivide:
-        calculator.appendOperation();
+        calculator.appendOperation(e.target.textContent);
         break;
       case eleEqual:
-        calculator.appendOperation();
+        calculator.onEqual();
         break;
       default:
         break;
     }
     console.log(eleOperation);
   })
+})
+
+eleReset.addEventListener("click", (e)=>{
+  calculator.onReset();
+})
+
+eleDelete.addEventListener("click", (e)=>{
+  calculator.onDelete();
 })
