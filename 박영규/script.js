@@ -1,5 +1,3 @@
-console.clear();
-
 const $BtnOperations = document.querySelectorAll("[data-btn-operation]");
 const $BtnNums = document.querySelectorAll("[data-btn-number]");
 const $PreviousPreview = document.querySelector("[data-previous-preview]");
@@ -77,7 +75,6 @@ class Calculator {
   }
 
   onReset() {
-    console.log(this.$PreviousPreview.textContent)
     this.$PreviousPreview.textContent = "";
     this.$CurrentPreview.textContent = "";
   
@@ -89,30 +86,36 @@ class Calculator {
     this.previousPreview = parseFloat(this.$PreviousPreview.textContent);
     this.currentPreview = parseFloat(this.$CurrentPreview.textContent);
 
+    // 현재 들어와있는 연산자가 존재하지 않고 새로 들어온 연산자가 "="가 아닐 때
     if(!this.operation && operation !== "=") {
       this.operation = operation;
       this.$PreviousPreview.textContent = this.$CurrentPreview.textContent + " " + operation;
       this.$CurrentPreview.textContent = "";
-    } else if(this.operation === "-") {
+    } 
+    else if(this.operation === "-") {
       this.handleMinus(this.previousPreview, this.currentPreview);
-    } else if(this.operation === "+") {
+    } 
+    else if(this.operation === "+") {
       this.handlePlus(this.previousPreview, this.currentPreview);
-    } else if(this.operation === "*") {
+    } 
+    else if(this.operation === "*") {
       this.handleMultiply(this.previousPreview, this.currentPreview);
-    } else if(this.operation === "÷") {
+    } 
+    else if(this.operation === "÷") {
       this.handleDivide(this.previousPreview, this.currentPreview);
-    } else if(this.operation === "=") {
+    } 
+    else if(this.operation === "=") {
       this.onEqual();
     }
   }
 }
 
-const test = new Calculator($PreviousPreview, $CurrentPreview);
+const newCalculator = new newCalculator($PreviousPreview, $CurrentPreview);
 
 $BtnNums.forEach(($BtnNum) => {
   $BtnNum.addEventListener("click", (e) => {
     const num = e.target.textContent;
-    test.onPressNumber(num);
+    newCalculator.onPressNumber(num);
   });
 });
 
@@ -120,31 +123,31 @@ $BtnOperations.forEach(($BtnOperation) => {
   $BtnOperation.addEventListener("click", (e) => {
     switch ($BtnOperation) {
       case $BtnMinus:
-        test.appendOperation(e.target.textContent);
+        newCalculator.appendOperation(e.target.textContent);
         break;
       case $BtnPlus:
-        test.appendOperation(e.target.textContent);
+        newCalculator.appendOperation(e.target.textContent);
         break;
       case $BtnMultiply:
-        test.appendOperation(e.target.textContent);
+        newCalculator.appendOperation(e.target.textContent);
         break;
       case $BtnDivide:
-        test.appendOperation(e.target.textContent);
+        newCalculator.appendOperation(e.target.textContent);
         break;
       case $BtnEqual:
-        test.appendOperation(e.target.textContent);
+        newCalculator.appendOperation(e.target.textContent);
         break;
       default:
-        test.appendOperation(e.target.textContent);
+        newCalculator.appendOperation(e.target.textContent);
         break;
     }
   });
 });
 
 $BtnReset.addEventListener('click', () => {
-  test.onReset();
+  newCalculator.onReset();
 })
 
 $BtnDelete.addEventListener('click', () => {
-  test.onDelete();
+  newCalculator.onDelete();
 })
