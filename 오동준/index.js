@@ -1,6 +1,6 @@
-const equationBox = document.querySelector(".equation");
-const resultBox = document.querySelector(".result");
-const numreg = /[0-9]|\./;
+const $equationBox = document.querySelector(".equation");
+const $resultBox = document.querySelector(".result");
+const numReg = /[0-9]|\./;
 const opreg = /\+|\-|\*|\÷|\(|\)/;
 const operate = {
     "*": (a, b) => a * b,
@@ -8,9 +8,9 @@ const operate = {
     "+": (a, b) => a + b,
     "-": (a, b) => a - b,
 };
-const ISOPERATOR = (op) =>
+const isOperator = (op) =>
     op === "+" || op === "-" || op === "*" || op === "÷" || op === ".";
-const ISPAREN = (op) => op === "(" || op === ")";
+const isParen = (op) => op === "(" || op === ")";
 
 const isValidCalculus = (splited) => {
     const stack = [];
@@ -18,8 +18,8 @@ const isValidCalculus = (splited) => {
         // 1. 연산자(+,-,*,÷,.)가 연속으로 2개가 들어가 있는지 확인
         if (
             i < splited.length - 1 &&
-            ISOPERATOR(splited[i]) &&
-            ISOPERATOR(splited[i + 1])
+            isOperator(splited[i]) &&
+            isOperator(splited[i + 1])
         ) {
             alert(
                 "올바른 계산식이 아닙니다. 연산자가 연속으로 포함되어 있습니다."
@@ -27,17 +27,17 @@ const isValidCalculus = (splited) => {
             return false;
         }
         // 2. 연산자의 앞과 뒤에 숫자가 있는지 확인
-        if (ISOPERATOR(splited[i])) {
+        if (isOperator(splited[i])) {
             if (i === 0 || i == splited.length - 1) {
                 alert(
                     "올바른 계산식이 아닙니다. 연산자는 계산식에 처음이나 끝에 위치할 수 없습니다."
                 );
                 return false;
             } else if (
-                ISOPERATOR(splited[i - 1]) ||
-                ISPAREN(splited[i - 1]) ||
-                ISOPERATOR(splited[i + 1]) ||
-                ISPAREN(splited[i + 1])
+                isOperator(splited[i - 1]) ||
+                isParen(splited[i - 1]) ||
+                isOperator(splited[i + 1]) ||
+                isParen(splited[i + 1])
             ) {
                 alert(
                     "올바른 계산식이 아닙니다. 연산자의 앞과 뒤에는 반드시 숫자 또는 괄호식이 존재해야 합니다."
@@ -46,7 +46,7 @@ const isValidCalculus = (splited) => {
             }
         }
         // 3. 괄호가 열려 있는지 확인
-        if (ISPAREN(splited[i])) {
+        if (isParen(splited[i])) {
             if (stack[stack.length - 1] === "(" && splited[i] === ")")
                 stack.pop();
             else stack.push(splited[i]);
@@ -67,11 +67,11 @@ const isValidCalculus = (splited) => {
 const preprocessing = (exp) => {
     const splited = [];
     while (exp.length) {
-        if (exp[0].search(numreg) > -1) {
+        if (exp[0].search(numReg) > -1) {
             let node = "";
             while (
                 ((node += exp.shift()),
-                exp.length && exp[0].search(numreg) > -1)
+                exp.length && exp[0].search(numReg) > -1)
             );
             splited.push(parseFloat(node));
         } else {
@@ -103,6 +103,7 @@ document.addEventListener("keydown", (e) => {
     // e.preventDefault();
     const { key, shiftKey } = e;
     if (
+        // 입력된 키가 number일 경우 해당 버튼을 클릭하도록 한다.
         !isNaN(Number(key)) ||
         key === "." ||
         key === "+" ||
@@ -129,40 +130,40 @@ document.addEventListener("keydown", (e) => {
             .querySelector(`input[value="="]`)
             .dispatchEvent(new Event("click"));
     } else if (shiftKey && (key === "(" || key === ")")) {
-        if (equationBox.innerHTML === "0") equationBox.innerHTML = key;
-        else equationBox.innerHTML += key;
+        if ($equationBox.innerHTML === "0") $equationBox.innerHTML = key;
+        else $equationBox.innerHTML += key;
     }
 });
 
 document.querySelectorAll(".number, .operator").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-        if (equationBox.innerHTML === "0")
-            equationBox.innerHTML = e.target.value;
-        else equationBox.innerHTML += e.target.value;
+        if ($equationBox.innerHTML === "0")
+            $equationBox.innerHTML = e.target.value;
+        else $equationBox.innerHTML += e.target.value;
     });
 });
 
 document.querySelector(".initialize").addEventListener("click", (e) => {
-    equationBox.innerHTML = "0";
-    resultBox.innerHTML = "";
+    $equationBox.innerHTML = "0";
+    $resultBox.innerHTML = "";
 });
 
 document.querySelector(".delete").addEventListener("click", (e) => {
-    equationBox.innerHTML =
-        equationBox.innerHTML.length === 1
+    $equationBox.innerHTML =
+        $equationBox.innerHTML.length === 1
             ? "0"
-            : equationBox.innerHTML.slice(0, -1);
+            : $equationBox.innerHTML.slice(0, -1);
 });
 
 document.querySelector(".calculate").addEventListener("click", (e) => {
-    const exp = equationBox.innerHTML;
+    const exp = $equationBox.innerHTML;
     // 1. 숫자와 연산자로 분리함.
     const splited = preprocessing(exp.split(""));
     // 2. 계산식이 맞는지 확인함.
     if (!isValidCalculus(splited)) return;
     // 3. 계산함.
     const res = calc(splited);
-    resultBox.innerHTML = res;
+    $resultBox.innerHTML = res;
     // 4. history에 기록함.
     const newRecord = document.createElement("div");
     newRecord.className = "record";
