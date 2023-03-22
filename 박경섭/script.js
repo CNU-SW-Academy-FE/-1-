@@ -7,9 +7,11 @@ class Calculator{
     previousNumber;
     result;
     historyStack;
-    constructor(elPreviousPreview,elCurrentPreview) {
+    elHistory;
+    constructor(elPreviousPreview,elCurrentPreview,elHistory) {
         this.elCurrentPreview = elCurrentPreview;
         this.elPreviousPreview = elPreviousPreview;
+        this.elHistory = elHistory;
         this.currentNumber = ''
         this.previousNumber = 0
         this.result = 0;
@@ -32,32 +34,53 @@ class Calculator{
         this.result = this.previousNumber - (+this.currentNumber)
         this.elCurrentPreview.textContent = this.result
         this.historyStack.push(this.result)
+        let strTest = String(this.historyStack)
+            
+           
+            this.elHistory.textContent = strTest.replace(/,/g, '\n');
     }
     handlePlus(){
         this.result = this.previousNumber + (+this.currentNumber)
         this.elCurrentPreview.textContent = this.result
         this.historyStack.push(this.result)
+        let strTest = String(this.historyStack)
+            
+           
+            this.elHistory.textContent = strTest.replace(/,/g, '\n');
     }
     handleMultiply(){
         this.result = this.previousNumber * (+this.currentNumber)
         this.elCurrentPreview.textContent = this.result
         this.historyStack.push(this.result)
+        let strTest = String(this.historyStack)
+            
+           
+            this.elHistory.textContent = strTest.replace(/,/g, '\n');
 
     }
     handleDivide(){
         this.result = this.previousNumber / (+this.currentNumber)
         this.elCurrentPreview.textContent = this.result
         this.historyStack.push(this.result)
+        let strTest = String(this.historyStack)
+            
+           
+            this.elHistory.textContent = strTest.replace(/,/g, '\n');
 
     }
     onEqual(){
         if(this.historyStack.length >= 1){
             this.previousNumber = this.result
             this.elCurrentPreview.textContent = this.result
+           
             this.elPreviousPreview.textContent = this.previousNumber +" "+ this.currentOperand +" "+ this.currentNumber
+            
+            
+            
 
         }
         else{
+            
             this.elPreviousPreview.textContent = this.previousNumber +" "+ this.currentOperand +" "+ this.currentNumber
         }
         switch(this.currentOperand){
@@ -119,8 +142,10 @@ const elMultiply = document.querySelector("[data-btn-multiply]")
 const elMinus = document.querySelector("[data-btn-minus]")
 const elPlus = document.querySelector("[data-btn-plus]")
 const elEqual = document.querySelector("[data-btn-equal]")
+const elHistory = document.querySelector('.history')
 
-const cal = new Calculator(elPreviousPreview, elCurrentPreview);
+
+const cal = new Calculator(elPreviousPreview, elCurrentPreview,elHistory);
 
 elNumber.forEach((number) => {
     number.addEventListener('click', (e)=> {
@@ -132,6 +157,8 @@ elNumber.forEach((number) => {
 elDelete.addEventListener('click', (e) => {
     cal.onDelete()
 })
+
+
 
 elOperaters.forEach((operater) =>{
     operater.addEventListener('click', (e) => {
@@ -151,6 +178,7 @@ elOperaters.forEach((operater) =>{
             case elEqual:
                 
                 cal.onEqual()
+                
                 break;
             default:
                 break;
