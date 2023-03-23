@@ -2,8 +2,8 @@ class Calculator {
     previousPreview;
     currentPreview;
     history;
-    num1 = "";
-    num2 = "";
+    previousNum = "";
+    currentNum = "";
     previousOperand = "";
     currentOperand = "";
     historyList = [];
@@ -15,48 +15,48 @@ class Calculator {
     }
 
     onPressNumber(number) {
-        if (!this.num1) this.previousPreview.textContent = "";
+        if (!this.previousNum) this.previousPreview.textContent = "";
         // 점('.')을 중복하여 눌렀을 때
         if (number === '.') {
             if (this.currentPreview.textContent.length < 1 || this.currentPreview.textContent.includes('.')) {
                 return;
             }
         }
-        this.num2 += number;
-        this.currentPreview.textContent = this.num2;
+        this.currentNum += number;
+        this.currentPreview.textContent = this.currentNum;
     }
 
     handleMinus() {
-        this.num1 = String(parseFloat(this.num1) - parseFloat(this.num2));
+        this.previousNum = String(parseFloat(this.previousNum) - parseFloat(this.currentNum));
     }
 
     handlePlus() {
-        this.num1 = String(parseFloat(this.num1) + parseFloat(this.num2));
+        this.previousNum = String(parseFloat(this.previousNum) + parseFloat(this.currentNum));
     }
 
     handleMultiply() {
-        this.num1 = String(parseFloat(this.num1) * parseFloat(this.num2));
+        this.previousNum = String(parseFloat(this.previousNum) * parseFloat(this.currentNum));
     }
 
     handleDivide() {
-        this.num1 = String(parseFloat(this.num1) / parseFloat(this.num2));
+        this.previousNum = String(parseFloat(this.previousNum) / parseFloat(this.currentNum));
     }
 
     onEqual() {
-        this.currentPreview.textContent = this.num1;
+        this.currentPreview.textContent = this.previousNum;
         // history 영역에 추가
         this.historyList.push({ expression: `${this.previousPreview.textContent}`, result: `${this.currentPreview.textContent}` });
         this.history.innerHTML = `
             ${this.historyList.map(hist => `
-                <div style="border-top: 2px solid gray;">
-                    <p style="opacity: .7;">${hist.expression}</p>
-                    <p style="font-weight: bold; font-size: 16px;">${hist.result}</p>
+                <div class="hist">
+                    <p class="mathExpression">${hist.expression}</p>
+                    <p class="resultValue">${hist.result}</p>
                 </div>
             `).join('')}
         `;
         // 필요한 변수 초기화
-        this.num1 = "";
-        this.num2 = "";
+        this.previousNum = "";
+        this.currentNum = "";
         this.previousOperand = "";
         this.currentOperand = "";
     }
@@ -75,8 +75,8 @@ class Calculator {
     onReset() {
         this.previousPreview.textContent = "";
         this.currentPreview.textContent = "";
-        this.num1 = "";
-        this.num2 = "";
+        this.previousNum = "";
+        this.currentNum = "";
         this.previousOperand = "";
         this.currentOperand = "";
     }
@@ -90,9 +90,9 @@ class Calculator {
         }
         // 이전 식의 결괏값을 이용하여 계산하려는 경우
         else {
-            if (!this.num1 && !this.num2 && !this.previousOperand && !this.currentOperand) {
+            if (!this.previousNum && !this.currentNum && !this.previousOperand && !this.currentOperand) {
                 this.previousPreview.textContent = "";
-                this.num1 = this.currentPreview.textContent;
+                this.previousNum = this.currentPreview.textContent;
             }
         }
 
@@ -100,13 +100,13 @@ class Calculator {
         this.currentOperand = operator;
 
         // 피연산자 설정
-        if (!this.num1) {
-            this.num1 = this.num2;
-            this.num2 = "";
+        if (!this.previousNum) {
+            this.previousNum = this.currentNum;
+            this.currentNum = "";
         }
 
         // 두 개의 피연산자와 하나의 연산자가 모두 존재할 경우, 연산자 종류에 따라 계산
-        if (this.previousOperand && this.num1 && this.num2) {
+        if (this.previousOperand && this.previousNum && this.currentNum) {
             switch (this.previousOperand) {
                 case '÷':
                     this.handleDivide();
@@ -123,7 +123,7 @@ class Calculator {
                 default:
                     break;
             }
-            this.num2 = "";
+            this.currentNum = "";
         }
 
         this.previousPreview.textContent += (this.currentPreview.textContent + " " + this.currentOperand + " ");
