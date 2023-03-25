@@ -101,8 +101,10 @@ class Calculator {
   }
 
   appendOperation(operation) {
+    operation = operation.trim();
     const currentOperand = this.$currentPreview.textContent;
-    if (operation.includes("=")) {
+
+    if (operation === "=") {
       if (currentOperand === "") {
         const lastWord =
           this.$previousPreview.textContent[
@@ -119,6 +121,7 @@ class Calculator {
       this.onEqual();
       return;
     }
+
     if (currentOperand === "") {
       this.$previousPreview.textContent += "0" + operation;
     } else {
