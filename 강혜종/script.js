@@ -97,8 +97,9 @@ class Calculator {
 
     onDelete() {
         const str = this.currentOperand
-        if (str.length === 0) { return }
-        else if (str.length === 1) {
+        if (str.length === 0) { 
+            return 
+        } else if (str.length === 1) {
             this.currentOperand = '0'
             if (this.previousOperand === '') { this.operation = '' }
         } else {
@@ -115,7 +116,6 @@ class Calculator {
         this.previousOperand = ''
         this.currentOperand = ''
         this.operation = ''
-        console.log("reset")
     }
 
     appendOperation(operation) {
@@ -182,22 +182,8 @@ $operations.forEach((item) => {
 
                 break
         }
-        // const operation = e.target.textContent
-        // calculator.onPressOperation(operation)
     })
 })
 
 $reset.addEventListener('click', (e) => calculator.onReset())
 $delete.addEventListener('click', (e) => calculator.onDelete())
-
-// console.log($currentPreview)
-// console.log($previousPreview)
-// console.log($minus)
-// console.log($plus)
-// console.log($multiply)
-// console.log($divide)
-// console.log($reset)
-// console.log($delete)
-// console.log($equal)
-// console.log($numbers)
-// console.log($operations)
