@@ -1,4 +1,4 @@
-# [2기 / 프로젝트 1] 계산기 앱
+# [3기 / 프로젝트 1] 계산기 앱
 ## 프로젝트 소개 😎
 VanillaJS를 활용한 UI component 와 event handling 구현 프로젝트 입니다.
 
