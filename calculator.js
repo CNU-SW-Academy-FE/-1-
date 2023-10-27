@@ -18,7 +18,7 @@ class Script {
         
 
      }
-
+  // 더하기 
      addOperation(operation){
         console.log(operation)
         if(currentReviewContent.textContent.length > 0) {
